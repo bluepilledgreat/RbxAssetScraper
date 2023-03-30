@@ -28,10 +28,10 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Publish
-      run: dotnet publish -p:PublishSingleFile=true -r win-${{ matrix.platform }} -c ${{ matrix.configuration }} --self-contained false .\RbxAssetScraper\RbxAssetScraper.csproj
+      run: dotnet publish -p:PublishSingleFile=true -r win-${{ matrix.platform }} -c ${{ matrix.configuration }} --self-contained false ./RbxAssetScraper/RbxAssetScraper.csproj
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
         name: RbxAssetScraper (${{ matrix.configuration }}, ${{ matrix.platform }})
         path: |
-          .\RbxAssetScraper\bin\${{ matrix.configuration }}\net6.0\win-${{ matrix.platform }}\publish\*
+          ./RbxAssetScraper/bin/${{ matrix.configuration }}/net6.0/win-${{ matrix.platform }}/publish/*
