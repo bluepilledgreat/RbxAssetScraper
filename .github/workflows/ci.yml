@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, Release]
-        platform: [win-x64, win-x86, win-arm, win-arm64]
+        platform: [win-x64, win-x86, win-arm, win-arm64, osx-x64, linux-x64, linux-arm]
     runs-on: ubuntu-latest
 
     steps:
