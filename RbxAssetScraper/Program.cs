@@ -51,7 +51,9 @@ namespace RbxAssetScraper
         {
             int longest = Commands.Aggregate(0, (max, curr) => max > curr.Key.Length ? max : curr.Key.Length); // https://stackoverflow.com/a/7975983
 
-            Console.WriteLine($"RbxAssetScraper {Assembly.GetExecutingAssembly().GetName().Version}");
+            // we dont use the final number
+            string? version = Assembly.GetExecutingAssembly().GetName().Version?.ToString()[..^2];
+            Console.WriteLine($"RbxAssetScraper {version}");
             Console.WriteLine("COMMANDS:");
             foreach (var command in Commands)
             {

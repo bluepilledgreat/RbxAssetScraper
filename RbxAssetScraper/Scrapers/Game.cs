@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RbxAssetScraper.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -95,23 +96,23 @@ namespace RbxAssetScraper.Scrapers
             Console.ReadKey();
         }
 
-        private void DownloaderOnSuccess(object sender, long id, int version, string cdnUrl, string lastModified, double fileSizeInMb, Stream contentStream)
+        private void DownloaderOnSuccess(object sender, DownloaderSuccessEventArgs e)
         {
-            FileWriter.Save(FileWriter.ConstructPath($"{Config.OutputPath}\\{id}-v{version}"), contentStream, DateTime.Parse(lastModified));
+            FileWriter.Save(FileWriter.ConstructPath($"{Config.OutputPath}\\{e.Input}-v{e.Version}"), e.ContentStream, DateTime.Parse(e.LastModified));
 
             if (Config.OutputType == OutputType.IndexOnly || Config.OutputType == OutputType.FilesAndIndex)
-                Versions[version] = $"{version} | {cdnUrl} [{lastModified} | {fileSizeInMb} MB]";
+                Versions[e.Version] = $"{e.Version} | {e.CdnUrl} [{e.LastModified} | {e.FileSizeMB} MB]";
 
             this.Completed++;
             UpdateProgress();
         }
 
-        private void DownloaderOnFailure(object sender, long id, int version, string message)
+        private void DownloaderOnFailure(object sender, DownloaderFailureEventArgs e)
         {
+            Errors.Add(e.Input);
             this.Completed++;
-            Errors.Add(version.ToString());
             UpdateProgress();
-            Console.WriteLine($"{version} failed to download: {message}");
+            Console.WriteLine($"{e.Version} failed to download: {e.Reason}");
         }
     }
 }

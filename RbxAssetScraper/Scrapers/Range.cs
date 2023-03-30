@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RbxAssetScraper.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -76,22 +77,20 @@ namespace RbxAssetScraper.Scrapers
             Console.ReadKey();
         }
 
-        private void DownloaderOnSuccess(object sender, long id, int version, string cdnUrl, string lastModified, double fileSizeInMb, Stream contentStream)
+        private void DownloaderOnSuccess(object sender, DownloaderSuccessEventArgs e)
         {
-            FileWriter.Save(FileWriter.ConstructPath($"{Config.OutputPath}\\{id}"), contentStream, DateTime.Parse(lastModified));
+            FileWriter.Save(FileWriter.ConstructPath($"{Config.OutputPath}\\{e.Input}"), e.ContentStream, DateTime.Parse(e.LastModified));
 
             this.Completed++;
-            //Console.WriteLine($"{id} : {this.Completed}");
             UpdateProgress();
         }
 
-        private void DownloaderOnFailure(object sender, long id, int version, string message)
+        private void DownloaderOnFailure(object sender, DownloaderFailureEventArgs e)
         {
+            Errors.Add(e.Input);
             this.Completed++;
-            //Console.WriteLine($"{id} : {this.Completed}");
-            Errors.Add(id.ToString());
             UpdateProgress();
-            Console.WriteLine($"{id} failed to download: {message}");
+            Console.WriteLine($"{e.Input} failed to download: {e.Reason}");
         }
     }
 }

@@ -1,7 +1,9 @@
-﻿using System;
+﻿using RbxAssetScraper.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace RbxAssetScraper.Scrapers
@@ -11,14 +13,14 @@ namespace RbxAssetScraper.Scrapers
         private int Completed;
         private int TotalIds;
         private List<string> Errors;
-        private SortedDictionary<long, string> Assets;
+        private SortedDictionary<string, string> Assets;
 
         public List()
         {
             Completed = 0;
             TotalIds = 0;
             Errors = new List<string>();
-            Assets = new SortedDictionary<long, string>();
+            Assets = new SortedDictionary<string, string>();
         }
 
         private void UpdateProgress()
@@ -48,10 +50,15 @@ namespace RbxAssetScraper.Scrapers
             {
                 if (!long.TryParse(strId, out long id))
                 {
-                    Console.WriteLine($"{strId} is not a valid number!");
-                    this.Completed++;
-                    Errors.Add(strId);
-                    UpdateProgress();
+                    // lets check if its an md5 hash (cdn)
+                    // https://stackoverflow.com/a/1715468
+                    if (Regex.IsMatch(strId, "^[0-9a-fA-F]{32}$", RegexOptions.Compiled))
+                    {
+                        await downloader.QueueCdnDownloadAsync(strId);
+                        continue;
+                    }
+
+                    DownloaderOnFailure(downloader, new() { Input = strId, Version = 0, Reason = $"{strId} is not a valid number!" });
                     continue;
                 }
 
@@ -83,23 +90,23 @@ namespace RbxAssetScraper.Scrapers
             Console.ReadKey();
         }
 
-        private void DownloaderOnSuccess(object sender, long id, int version, string cdnUrl, string lastModified, double fileSizeInMb, Stream contentStream)
+        private void DownloaderOnSuccess(object sender, DownloaderSuccessEventArgs e)
         {
-            FileWriter.Save(FileWriter.ConstructPath($"{Config.OutputPath}\\{id}"), contentStream, DateTime.Parse(lastModified));
+            FileWriter.Save(FileWriter.ConstructPath($"{Config.OutputPath}\\{e.Input}"), e.ContentStream, DateTime.Parse(e.LastModified));
 
             if (Config.OutputType == OutputType.IndexOnly || Config.OutputType == OutputType.FilesAndIndex)
-                Assets[id] = $"{id} | {cdnUrl} [{lastModified} | {fileSizeInMb} MB]";
+                Assets[e.Input] = $"{e.Input} | {e.CdnUrl} [{e.LastModified} | {e.FileSizeMB} MB]";
             
             this.Completed++;
             UpdateProgress();
         }
 
-        private void DownloaderOnFailure(object sender, long id, int version, string message)
+        private void DownloaderOnFailure(object sender, DownloaderFailureEventArgs e)
         {
+            Errors.Add(e.Input);
             this.Completed++;
-            Errors.Add(id.ToString());
             UpdateProgress();
-            Console.WriteLine($"{id} failed to download: {message}");
+            Console.WriteLine($"{e.Input} failed to download: {e.Reason}");
         }
     }
 }
