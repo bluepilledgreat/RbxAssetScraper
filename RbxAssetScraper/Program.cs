@@ -10,14 +10,13 @@ namespace RbxAssetScraper
             new("-?, -h, --help", "Displays the help menu (this)."),
             new("", ""),
             new("-a, --asset", "Uses the asset scraper."),
+            new("", "Input for asset scrapers should be the game id."),
             new("-l, --list", "Uses the list scraper."),
-            new("-lv, --listversions", "Uses the list scraper, with version scraping."),
+            new("-lv, --listversions", "Uses the list scraper, with version scraping. [EXPERIMENTAL]"),
+            new("", "Input for list scrapers should be the path to the list."),
             new("-r, --range", "Uses the range scraper."),
+            new("", "Input for range scrapers the start and end ids in the format of (start)-(end)."),
             new("", "" ),
-            new("-i, --input", "Input argument. This varies based on scraper:"),
-            new("", "Game id for game scraper."),
-            new("", "Path to text file for list scraper."),
-            new("", "Id range in the format of (start)-(end) for range scraper."),
             new("-o, --output", "Output folder."),
             new("", "Default = output."),
             new("", ""),
@@ -33,7 +32,7 @@ namespace RbxAssetScraper
             new("", "Default = FilesOnly."),
             new("-c, --compression", "Compression type. Options are 'None', 'GZip', 'BZip2'."),
             new("", "Default = None."),
-            new("-rs, --roblosecurity", "ROBLOSECURITY cookie, for downloading copylocked assets on an account."),
+            new("-rs, --roblosecurity", ".ROBLOSECURITY cookie, for downloading copylocked assets on an account."),
         };
 
         static string GetValueFromArgs(ref string[] args, ref int index)
@@ -63,9 +62,10 @@ namespace RbxAssetScraper
                 Console.WriteLine($"{cmdName.PadRight(longest)} {cmdDesc}");
             }
             Console.WriteLine();
-            Console.WriteLine("Example: \"RbxAssetScraper -a -i 1818 -e rbxl\"");
-            Console.WriteLine("         \"RbxAssetScraper -l -i list-of-hats.txt -e rbxm -mh 5\"");
-            Console.WriteLine("         \"RbxAssetScraper -r -i 100000-200000 -e rbxm\"");
+            Console.WriteLine("Example: \"RbxAssetScraper -a 1818 -e rbxl\"");
+            Console.WriteLine("         \"RbxAssetScraper -l list-of-hats.txt -e rbxm -mh 5\"");
+            Console.WriteLine("         \"RbxAssetScraper -lv list-of-historic-places.txt -e rbxl -mr 2 -mh 5 -c BZip2\"");
+            Console.WriteLine("         \"RbxAssetScraper -r 100000-200000 -e rbxm\"");
         }
 
         static async Task Main(string[] args)
@@ -87,27 +87,26 @@ namespace RbxAssetScraper
 
                     case "-a":
                     case "--asset":
+                        input = GetValueFromArgs(ref args, ref i);
                         scraper = new Scrapers.Asset();
                         break;
 
                     case "-l":
                     case "--list":
+                        input = GetValueFromArgs(ref args, ref i);
                         scraper = new Scrapers.List(false);
                         break;
 
                     case "-lv":
                     case "--listversions":
+                        input = GetValueFromArgs(ref args, ref i);
                         scraper = new Scrapers.List(true);
                         break;
 
                     case "-r":
                     case "--range":
-                        scraper = new Scrapers.Range();
-                        break;
-
-                    case "-i":
-                    case "--input":
                         input = GetValueFromArgs(ref args, ref i);
+                        scraper = new Scrapers.Range();
                         break;
 
                     case "-o":
