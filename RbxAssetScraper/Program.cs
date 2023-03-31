@@ -1,39 +1,38 @@
-﻿using System.Reflection;
+﻿using RbxAssetScraper.Models;
+using System.Reflection;
 
 namespace RbxAssetScraper
 {
     internal class Program
     {
-        // LBA = leave blank area
-        // LAB = leave as blank
-        static Dictionary<string, string> Commands = new Dictionary<string, string>()
+        static List<CommandInfo> Commands = new List<CommandInfo>()
         {
-            { "-?, -h, --help", "Displays the help menu (this)." },
-            { "LAB1", "" },
-            { "-g, --game", "Uses the game scraper." },
-            { "-l, --list", "Uses the list scraper." },
-            { "-r, --range", "Uses the range scraper." },
-            { "LAB2", "" },
-            { "-i, --input", "Input argument. This varies based on scraper:" },
-            { "LAB3", "Game id for game scraper." },
-            { "LAB4", "Path to text file for list scraper." },
-            { "LAB5", "Id range in the format of (start)-(end) for range scraper." },
-            { "-o, --output", "Output folder." },
-            { "LAB6", "Default = output." },
-            { "LAB7", "" },
-            { "-e, --extension", "Extension for all scraped files to include." },
-            { "LAB8", "Default = None." },
-            { "-mh, --maxhttp", "Maximum amount of HTTP connections at any time." },
-            { "LAB9", "Less connections are better for slower internet speeds." },
-            { "LAB10", "Default = 1." },
-            { "-mr, --maxretries", "Maximum amount of asset download retries." },
-            { "LAB11", "Default = 0." },
-            { "-ot, --outputtype", "Output type. Options are 'FilesOnly', 'IndexOnly', 'FilesAndIndex'." },
-            { "LAB12", "Range scraper does not support indexes." },
-            { "LAB13", "Default = FilesOnly." },
-            { "-c, --compression", "Compression type. Options are 'None', 'GZip', 'BZip2'." },
-            { "LAB14", "Default = None." },
-            { "-rs, --roblosecurity", "ROBLOSECURITY cookie, for downloading copylocked assets on an account." },
+            new("-?, -h, --help", "Displays the help menu (this)."),
+            new("", ""),
+            new("-g, --game", "Uses the game scraper."),
+            new("-l, --list", "Uses the list scraper."),
+            new("-r, --range", "Uses the range scraper."),
+            new("", "" ),
+            new("-i, --input", "Input argument. This varies based on scraper:"),
+            new("", "Game id for game scraper."),
+            new("", "Path to text file for list scraper."),
+            new("", "Id range in the format of (start)-(end) for range scraper."),
+            new("-o, --output", "Output folder."),
+            new("", "Default = output."),
+            new("", ""),
+            new("-e, --extension", "Extension for all scraped files to include."),
+            new("", "Default = None."),
+            new("-mh, --maxhttp", "Maximum amount of HTTP connections at any time."),
+            new("", "Less connections are better for slower internet speeds."),
+            new("", "Default = 1."),
+            new("-mr, --maxretries", "Maximum amount of asset download retries."),
+            new("", "Default = 0."),
+            new("-ot, --outputtype", "Output type. Options are 'FilesOnly', 'IndexOnly', 'FilesAndIndex'."),
+            new("", "Range scraper does not support indexes."),
+            new("", "Default = FilesOnly."),
+            new("-c, --compression", "Compression type. Options are 'None', 'GZip', 'BZip2'."),
+            new("", "Default = None."),
+            new("-rs, --roblosecurity", "ROBLOSECURITY cookie, for downloading copylocked assets on an account."),
         };
 
         static string GetValueFromArgs(ref string[] args, ref int index)
@@ -50,7 +49,7 @@ namespace RbxAssetScraper
 
         static void DisplayHelp()
         {
-            int longest = Commands.Aggregate(0, (max, curr) => max > curr.Key.Length ? max : curr.Key.Length); // https://stackoverflow.com/a/7975983
+            int longest = Commands.Aggregate(0, (max, curr) => max > curr.Name.Length ? max : curr.Name.Length); // https://stackoverflow.com/a/7975983
 
             // we dont use the final number
             string? version = Assembly.GetExecutingAssembly().GetName().Version?.ToString()[..^2];
@@ -58,10 +57,8 @@ namespace RbxAssetScraper
             Console.WriteLine("COMMANDS:");
             foreach (var command in Commands)
             {
-                string cmdName = command.Key;
-                string cmdDesc = command.Value;
-                if (cmdName.StartsWith("LAB")) // LEAVE AS BLANK
-                    cmdName = "";
+                string cmdName = command.Name;
+                string cmdDesc = command.Description;
                 Console.WriteLine($"{cmdName.PadRight(longest)} {cmdDesc}");
             }
             Console.WriteLine();
