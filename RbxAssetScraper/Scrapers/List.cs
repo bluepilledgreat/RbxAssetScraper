@@ -11,21 +11,31 @@ namespace RbxAssetScraper.Scrapers
     internal class List : IScraper
     {
         private int Completed;
+        private int CompletedVersions;
         private int TotalIds;
+        private int TotalVersions;
         private List<string> Errors;
         private SortedDictionary<string, string> Assets;
+        private bool DownloadVersions;
 
-        public List()
+        public List(bool downloadVersions)
         {
             Completed = 0;
+            CompletedVersions = 0;
             TotalIds = 0;
+            TotalVersions = 0;
             Errors = new List<string>();
             Assets = new SortedDictionary<string, string>();
+            DownloadVersions = downloadVersions;
         }
 
         private void UpdateProgress()
         {
-            string progress = $"RbxAssetScraper | {Completed}/{TotalIds} | {Errors.Count} ERRORS";
+            string progress;
+            if (DownloadVersions)
+                progress = $"RbxAssetScraper | {Completed}/{TotalIds} | {CompletedVersions}/{TotalVersions} | {Errors.Count} ERRORS";
+            else
+                progress = $"RbxAssetScraper | {Completed}/{TotalIds} | {Errors.Count} ERRORS";
             Console.Title = progress;
         }
 
@@ -40,8 +50,14 @@ namespace RbxAssetScraper.Scrapers
                 return;
             }
 
+            if (DownloadVersions && (Config.OutputType == OutputType.FilesOnly || Config.OutputType == OutputType.FilesAndIndex))
+            {
+                Console.WriteLine("List versions may create weird index files!");
+            }
+
             string[] strIds = await File.ReadAllLinesAsync(input);
             this.TotalIds = strIds.Count();
+            this.TotalVersions = this.TotalIds;
 
             Downloader downloader = new Downloader();
             // set up events
@@ -65,16 +81,54 @@ namespace RbxAssetScraper.Scrapers
                     continue;
                 }
 
+                if (DownloadVersions)
+                {
+                    int versions = 0;
+                    try
+                    {
+                        HttpResponseMessage response = await Downloader.AssetDeliveryRequestAsync(id);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+                        {
+                            throw new Exception("Asset is copylocked");
+                        }
+
+                        // 403 means that the specific version is gone, but is still uncopylocked
+                        Downloader.EnsureSuccessStatusCode(response.StatusCode, allow403: true);
+
+                        versions = int.Parse(response.Headers.GetValues("roblox-assetversionnumber").First());
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Completed++;
+                        DownloaderOnFailure(downloader, new() { Input = id.ToString(), Version = -1, Reason = $"Failed to get total versions: {ex}" });
+                        continue;
+                    }
+
+                    this.TotalVersions += versions-1;
+
+                    for (int i = 1; i <= versions; i++)
+                        await downloader.QueueDownloadAsync(id, i);
+
+                    this.Completed++;
+                    continue;
+                }
+
                 await downloader.QueueDownloadAsync(id);
             }
 
-            while (this.Completed != this.TotalIds)
+            while (this.CompletedVersions != this.TotalVersions)
                 await Task.Delay(50);
 
             int totalErrors = this.Errors.Count;
             Console.WriteLine("COMPLETED!");
             Console.WriteLine($"Total IDs:  {this.TotalIds}");
-            Console.WriteLine($"Downloaded: {this.TotalIds - totalErrors}");
+            if (DownloadVersions)
+            {
+                Console.WriteLine($"Total Versions: {this.TotalVersions}");
+                Console.WriteLine($"Downloaded: {this.TotalVersions - totalErrors}");
+            }
+            else
+                Console.WriteLine($"Downloaded: {this.TotalIds - totalErrors}");
             Console.WriteLine($"Errors:     {totalErrors}");
 
             if (totalErrors > 0)
@@ -95,21 +149,36 @@ namespace RbxAssetScraper.Scrapers
 
         private void DownloaderOnSuccess(object sender, DownloaderSuccessEventArgs e)
         {
-            FileWriter.Save(FileWriter.ConstructPath($"{Config.OutputPath}\\{e.Input}"), e.ContentStream, DateTime.Parse(e.LastModified));
+            string path;
+            if (DownloadVersions && e.Version != 0 && (Config.OutputType == OutputType.FilesOnly || Config.OutputType == OutputType.FilesAndIndex))
+            {
+                Directory.CreateDirectory($"{Config.OutputPath}\\{e.Input}");
+                path = FileWriter.ConstructPath($"{Config.OutputPath}\\{e.Input}\\{e.Input}-v{e.Version}");
+            }
+            else
+                path = FileWriter.ConstructPath($"{Config.OutputPath}\\{e.Input}");
 
+            FileWriter.Save(path, e.ContentStream, DateTime.Parse(e.LastModified));
+
+            string indexLine = DownloadVersions && e.Version != 0 ? $"{e.Input} v{e.Version}" : e.Input;
             if (Config.OutputType == OutputType.IndexOnly || Config.OutputType == OutputType.FilesAndIndex)
-                Assets[e.Input] = $"{e.Input} | {e.CdnUrl} [{e.LastModified} | {e.FileSizeMB} MB]";
-            
-            this.Completed++;
+                Assets[indexLine] = $"{indexLine} | {e.CdnUrl} [{e.LastModified} | {e.FileSizeMB} MB]";
+
+            this.CompletedVersions++;
+            if (!DownloadVersions || e.Version == 0)
+                this.Completed++;
             UpdateProgress();
         }
 
         private void DownloaderOnFailure(object sender, DownloaderFailureEventArgs e)
         {
-            Errors.Add(e.Input);
-            this.Completed++;
+            string display = DownloadVersions && e.Version != 0 ? $"{e.Input} v{e.Version}" : e.Input;
+            Errors.Add(display);
+            this.CompletedVersions++;
+            if (!DownloadVersions || e.Version == 0)
+                this.Completed++;
             UpdateProgress();
-            Console.WriteLine($"{e.Input} failed to download: {e.Reason}");
+            Console.WriteLine($"{display} failed to download: {e.Reason}");
         }
     }
 }

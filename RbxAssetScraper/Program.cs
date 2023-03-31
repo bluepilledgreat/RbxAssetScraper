@@ -11,6 +11,7 @@ namespace RbxAssetScraper
             new("", ""),
             new("-g, --game", "Uses the game scraper."),
             new("-l, --list", "Uses the list scraper."),
+            new("-lv, --listversions", "Uses the list scraper, with version scraping."),
             new("-r, --range", "Uses the range scraper."),
             new("", "" ),
             new("-i, --input", "Input argument. This varies based on scraper:"),
@@ -91,7 +92,12 @@ namespace RbxAssetScraper
 
                     case "-l":
                     case "--list":
-                        scraper = new Scrapers.List();
+                        scraper = new Scrapers.List(false);
+                        break;
+
+                    case "-lv":
+                    case "--listversions":
+                        scraper = new Scrapers.List(true);
                         break;
 
                     case "-r":
