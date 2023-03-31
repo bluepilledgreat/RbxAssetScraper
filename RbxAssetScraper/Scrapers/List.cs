@@ -136,13 +136,13 @@ namespace RbxAssetScraper.Scrapers
             if (totalErrors > 0)
             {
                 Console.WriteLine("Errors list can be found in the output folder under the name \"errors.txt\"");
-                await File.WriteAllLinesAsync($"{Config.OutputPath}\\errors.txt", this.Errors);
+                await File.WriteAllLinesAsync($"{Config.OutputPath}/errors.txt", this.Errors);
             }
 
             if (this.Assets.Count > 0)
             {
                 Console.WriteLine("Index list can be found in the output folder under the name \"index.txt\"");
-                await File.WriteAllLinesAsync($"{Config.OutputPath}\\index.txt", this.Assets.Select(x => x.Value));
+                await File.WriteAllLinesAsync($"{Config.OutputPath}/index.txt", this.Assets.Select(x => x.Value));
             }
 
             Console.WriteLine("Press [ENTER] to exit.");
@@ -154,11 +154,11 @@ namespace RbxAssetScraper.Scrapers
             string path;
             if (DownloadVersions && e.Version != 0 && (Config.OutputType == OutputType.FilesOnly || Config.OutputType == OutputType.FilesAndIndex))
             {
-                Directory.CreateDirectory($"{Config.OutputPath}\\{e.Input}");
-                path = FileWriter.ConstructPath($"{Config.OutputPath}\\{e.Input}\\{e.Input}-v{e.Version}");
+                Directory.CreateDirectory($"{Config.OutputPath}/{e.Input}");
+                path = FileWriter.ConstructPath($"{Config.OutputPath}/{e.Input}/{e.Input}-v{e.Version}");
             }
             else
-                path = FileWriter.ConstructPath($"{Config.OutputPath}\\{e.Input}");
+                path = FileWriter.ConstructPath($"{Config.OutputPath}/{e.Input}");
 
             FileWriter.Save(path, e.ContentStream, DateTime.Parse(e.LastModified));
 
