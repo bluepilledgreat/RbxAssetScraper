@@ -150,6 +150,9 @@ namespace RbxAssetScraper
             {
                 if (input != null)
                 {
+                    if (string.IsNullOrEmpty(Config.OutputPath))
+                        Config.OutputPath = scraper.BuildDefaultOutputPath(input);
+
                     Directory.CreateDirectory(Config.OutputPath);
                     await scraper.Start(input);
                 }

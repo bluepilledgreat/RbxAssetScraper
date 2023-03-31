@@ -30,6 +30,9 @@ namespace RbxAssetScraper.Scrapers
             Console.Title = progress;
         }
 
+        public string BuildDefaultOutputPath(string input)
+            => input;
+
         public async Task Start(string input)
         {
             if (!long.TryParse(input, out this.Id))

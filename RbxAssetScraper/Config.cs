@@ -22,8 +22,8 @@ namespace RbxAssetScraper
 
     internal class Config
     {
-        public static string OutputPath { get; set; } = "output";
-        public static string OutputExtension { get; set; } = "";
+        public static string? OutputPath { get; set; }
+        public static string? OutputExtension { get; set; }
         public static int MaxHttpRequests { get; set; } = 1;
         public static int MaxRetries { get; set; } = 0;
         public static OutputType OutputType { get; set; } = OutputType.FilesOnly;

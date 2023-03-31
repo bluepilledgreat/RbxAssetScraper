@@ -9,5 +9,6 @@ namespace RbxAssetScraper
     internal interface IScraper
     {
         public Task Start(string input);
+        public string BuildDefaultOutputPath(string input);
     }
 }

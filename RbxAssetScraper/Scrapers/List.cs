@@ -29,6 +29,9 @@ namespace RbxAssetScraper.Scrapers
             Console.Title = progress;
         }
 
+        public string BuildDefaultOutputPath(string input)
+            => $"{Path.GetFileNameWithoutExtension(input)}_assets";
+
         public async Task Start(string input)
         {
             if (!File.Exists(input))
