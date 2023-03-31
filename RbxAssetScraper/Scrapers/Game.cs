@@ -112,7 +112,7 @@ namespace RbxAssetScraper.Scrapers
 
         private void DownloaderOnFailure(object sender, DownloaderFailureEventArgs e)
         {
-            Errors.Add(e.Input);
+            Errors.Add(e.Version.ToString());
             this.Completed++;
             UpdateProgress();
             Console.WriteLine($"{e.Version} failed to download: {e.Reason}");
