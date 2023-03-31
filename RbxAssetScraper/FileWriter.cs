@@ -9,8 +9,8 @@ namespace RbxAssetScraper
 {
     internal class FileWriter
     {
-        public static string ConstructPath(string start)
-            => $"{start}{(string.IsNullOrEmpty(Config.OutputExtension) ? "" : $".{Config.OutputExtension}")}";
+        public static string ConstructPath(string path1, string path2)
+            => $"{Path.Combine(path1, path2)}{(string.IsNullOrEmpty(Config.OutputExtension) ? "" : $".{Config.OutputExtension}")}";
 
         public static void Save(string filePath, Stream stream, DateTime? lastModified = null)
         {

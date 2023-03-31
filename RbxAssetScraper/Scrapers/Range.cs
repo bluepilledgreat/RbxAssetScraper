@@ -73,7 +73,7 @@ namespace RbxAssetScraper.Scrapers
             if (totalErrors > 0)
             {
                 Console.WriteLine("Errors list can be found in the output folder under the name \"errors.txt\"");
-                await File.WriteAllLinesAsync($"{Config.OutputPath}/errors.txt", this.Errors);
+                await File.WriteAllLinesAsync(Path.Combine(Config.OutputPath, "errors.txt"), this.Errors);
             }
 
             Console.WriteLine("Press [ENTER] to exit.");
@@ -82,7 +82,7 @@ namespace RbxAssetScraper.Scrapers
 
         private void DownloaderOnSuccess(object sender, DownloaderSuccessEventArgs e)
         {
-            FileWriter.Save(FileWriter.ConstructPath($"{Config.OutputPath}/{e.Input}"), e.ContentStream, DateTime.Parse(e.LastModified));
+            FileWriter.Save(FileWriter.ConstructPath(Config.OutputPath, e.Input), e.ContentStream, DateTime.Parse(e.LastModified));
 
             this.Completed++;
             UpdateProgress();
