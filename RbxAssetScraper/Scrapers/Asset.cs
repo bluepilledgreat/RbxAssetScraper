@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RbxAssetScraper.Scrapers
 {
-    internal class Game : IScraper
+    internal class Asset : IScraper
     {
         private int Completed;
         private int TotalVersions;
@@ -15,7 +15,7 @@ namespace RbxAssetScraper.Scrapers
         private SortedDictionary<long, string> Versions;
         private long Id;
 
-        public Game()
+        public Asset()
         {
             Completed = 0;
             TotalVersions = 0;

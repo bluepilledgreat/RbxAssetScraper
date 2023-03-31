@@ -9,7 +9,7 @@ namespace RbxAssetScraper
         {
             new("-?, -h, --help", "Displays the help menu (this)."),
             new("", ""),
-            new("-g, --game", "Uses the game scraper."),
+            new("-a, --asset", "Uses the asset scraper."),
             new("-l, --list", "Uses the list scraper."),
             new("-lv, --listversions", "Uses the list scraper, with version scraping."),
             new("-r, --range", "Uses the range scraper."),
@@ -63,7 +63,7 @@ namespace RbxAssetScraper
                 Console.WriteLine($"{cmdName.PadRight(longest)} {cmdDesc}");
             }
             Console.WriteLine();
-            Console.WriteLine("Example: \"RbxAssetScraper -g -i 1818 -e rbxl\"");
+            Console.WriteLine("Example: \"RbxAssetScraper -a -i 1818 -e rbxl\"");
             Console.WriteLine("         \"RbxAssetScraper -l -i list-of-hats.txt -e rbxm -mh 5\"");
             Console.WriteLine("         \"RbxAssetScraper -r -i 100000-200000 -e rbxm\"");
         }
@@ -85,9 +85,9 @@ namespace RbxAssetScraper
                         DisplayHelp();
                         return;
 
-                    case "-g":
-                    case "--game":
-                        scraper = new Scrapers.Game();
+                    case "-a":
+                    case "--asset":
+                        scraper = new Scrapers.Asset();
                         break;
 
                     case "-l":
