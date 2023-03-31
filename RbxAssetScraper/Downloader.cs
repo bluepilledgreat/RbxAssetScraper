@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,6 +11,7 @@ namespace RbxAssetScraper
     internal class Downloader
     {
         private static HttpClient HttpClient;
+        private static CookieContainer CookieContainer;
 
         public delegate void Finished(object sender, DownloaderFinishedEventArgs e);
         public delegate void Success(object sender, DownloaderSuccessEventArgs e);
@@ -23,10 +25,15 @@ namespace RbxAssetScraper
 
         static Downloader()
         {
+            CookieContainer = new CookieContainer();
+            CookieContainer.Add(new Cookie(".ROBLOSECURITY", Config.RobloSecurity, "/", ".roblox.com"));
+
             HttpClientHandler handler = new HttpClientHandler
             {
-                AutomaticDecompression = System.Net.DecompressionMethods.All,
-                AllowAutoRedirect = false
+                AutomaticDecompression = DecompressionMethods.All,
+                AllowAutoRedirect = false,
+                CookieContainer = CookieContainer,
+                UseCookies = true,
             };
 
             HttpClient = new HttpClient(handler)

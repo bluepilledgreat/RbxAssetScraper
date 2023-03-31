@@ -28,5 +28,6 @@ namespace RbxAssetScraper
         public static int MaxRetries { get; set; } = 0;
         public static OutputType OutputType { get; set; } = OutputType.FilesOnly;
         public static CompressionType CompressionType { get; set; } = CompressionType.None;
+        public static string? RobloSecurity { get; set; }
     }
 }

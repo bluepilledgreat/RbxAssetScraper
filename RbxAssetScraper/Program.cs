@@ -33,6 +33,7 @@ namespace RbxAssetScraper
             { "LAB13", "Default = FilesOnly." },
             { "-c, --compression", "Compression type. Options are 'None', 'GZip', 'BZip2'." },
             { "LAB14", "Default = None." },
+            { "-rs, --roblosecurity", "ROBLOSECURITY cookie, for downloading copylocked assets on an account." },
         };
 
         static string GetValueFromArgs(ref string[] args, ref int index)
@@ -134,6 +135,11 @@ namespace RbxAssetScraper
                     case "-c":
                     case "--compression":
                         Config.CompressionType = (CompressionType)Enum.Parse(typeof(CompressionType), GetValueFromArgs(ref args, ref i), true);
+                        break;
+
+                    case "-rs":
+                    case "--roblosecurity":
+                        Config.RobloSecurity = GetValueFromArgs(ref args, ref i);
                         break;
 
                     default:
