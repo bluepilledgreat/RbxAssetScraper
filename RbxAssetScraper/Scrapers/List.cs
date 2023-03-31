@@ -50,9 +50,11 @@ namespace RbxAssetScraper.Scrapers
                 return;
             }
 
-            if (DownloadVersions && (Config.OutputType == OutputType.FilesOnly || Config.OutputType == OutputType.FilesAndIndex))
+            if (DownloadVersions)
             {
-                Console.WriteLine("List versions may create weird index files!");
+                Console.WriteLine("List versions is an experimental feature.");
+                if (Config.OutputType == OutputType.FilesOnly || Config.OutputType == OutputType.FilesAndIndex)
+                    Console.WriteLine("List versions may output weird index files!");
             }
 
             string[] strIds = await File.ReadAllLinesAsync(input);
